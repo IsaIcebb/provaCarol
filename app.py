@@ -1,44 +1,92 @@
-from flask import Flask, jsonify, request
-import os
+# Importações
+from flask import Flask
+from flask import jsonify
+from flask import request
+
+from flask_cors import CORS
 
 app = Flask(__name__)
 
+CORS(app)
+
 usuarios = [
-    {"id": 1, "usuarios": "Miriam"},
-    {"id": 2, "usuarios": "Sophia"},
-    {"id": 3, "usuarios": "Miguel "},
-    {"id": 4, "usuarios": "Isadora"},
-    {"id": 5, "usuarios": "Ana Paula"},
-    {"id": 6, "usuarios": "Cassia"},
-    {"id": 7, "usuarios": "Roberto"},
-    {"id": 8, "usuarios": "Juliana"},
-    {"id": 9, "usuarios": "Júlio"},
-    {"id": 10, "usuarios": "Pedro"},
-    {"id": 11, "usuarios": "Renata"},
-    {"id": 12, "usuarios": "Maria"},
-    {"id": 13, "usuarios": "Cacilda"},
-    {"id": 14, "usuarios": "Isobelle"},
-    {"id": 15, "usuarios": "Lenora"},
-    
+
+    {
+        "id": 1,
+        "nome": "Maria",
+        "email": "maria@email.com",
+        "telefone": "(14) 99999-9999"
+    },
+
+    {
+        "id": 2,
+        "nome": "João",
+        "email": "joao@email.com",
+        "telefone": "(14) 98888-8888"
+    }
+
 ]
 
+
+
 @app.route("/usuarios", methods=["GET"])
-def home():
-    return jsonify({"mensagem": "API de usuarios - Acesse /usuarios"})
+def buscar_usuarios():
 
-@app.route("/", methods=["GET"])
-def listar_usuarios():
     return jsonify(usuarios)
-@app.route('/usuarios', methods=["POST"])
-def criar_usuario():
- novo = request.json
- novo ['id'] = len(usuarios) + 1
- usuarios.append(novo)
- return jsonfy(novo), 201
 
-if __name__ == "__main__":
-    app.run(debug=True)
 
-if __name__ == "__main__":
-    port = int(os.environ.get("PORT" , 5000))
-    app.run(host="0.0.0.0", port=port)
+@app.route("/usuarios", methods=["POST"])
+def cadastrar_usuario():
+
+    novo_usuario = request.json
+
+    usuarios.append(novo_usuario)
+
+    return jsonify({
+        "mensagem": "Usuário cadastrado!",
+        "usuario": novo_usuario
+    })
+
+
+
+@app.route("/usuarios/<int:id>", methods=["PUT"])
+def atualizar_usuario(id):
+
+    dados = request.json
+
+    for usuario in usuarios:
+
+        if usuario["id"] == id:
+
+            usuario["nome"] = dados["nome"]
+
+            return jsonify({
+                "mensagem": "Usuário atualizado!",
+                "usuario": usuario
+            })
+
+    return jsonify({
+        "mensagem": "Usuário não encontrado"
+    })
+
+
+
+@app.route("/usuarios/<int:id>", methods=["DELETE"])
+def excluir_usuario(id):
+
+    for usuario in usuarios:
+
+        if usuario["id"] == id:
+
+            usuarios.remove(usuario)
+
+            return jsonify({
+                "mensagem": "Usuário removido!"
+            })
+
+    return jsonify({
+        "mensagem": "Usuário não encontrado"
+    })
+
+
+app.run(debug=True)
